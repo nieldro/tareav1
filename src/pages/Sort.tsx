@@ -1,10 +1,11 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, SkipForward, RotateCcw, Shuffle } from "lucide-react";
+import { Play, Pause, SkipForward, RotateCcw, Shuffle, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HeapTree } from "@/components/HeapTree";
 import { cn } from "@/lib/utils";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface Step {
   array: number[];
@@ -71,7 +72,7 @@ export default function Sort() {
   const currentData = steps[currentStep];
 
   const startSort = useCallback(() => {
-    const nums = inputValue.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n));
+    const nums = inputValue.split(",").map((s) => parseFloat(s.trim())).filter((n) => !isNaN(n));
     if (nums.length < 2) return;
     const s = generateHeapSortSteps(nums);
     setSteps(s);
@@ -112,9 +113,27 @@ export default function Sort() {
 
   const randomize = () => {
     const count = 5 + Math.floor(Math.random() * 4);
-    const nums = Array.from({ length: count }, () => Math.floor(Math.random() * 99) + 1);
+    const useDecimals = Math.random() > 0.5;
+    const useNegatives = Math.random() > 0.5;
+    const nums = Array.from({ length: count }, () => {
+      let n = Math.floor(Math.random() * 99) + 1;
+      if (useNegatives && Math.random() > 0.5) n = -n;
+      if (useDecimals) n = parseFloat((n + Math.random()).toFixed(1));
+      return n;
+    });
     setInputValue(nums.join(", "));
   };
+
+  const isFinished = steps.length > 0 && currentStep === steps.length - 1;
+
+  const complexityData = useMemo(() => Array.from({ length: 10 }, (_, i) => {
+    const n = (i + 1) * 10;
+    return {
+      n,
+      "Heap Sort O(n log n)": Math.round(n * Math.log2(n)),
+      "Bubble Sort O(n²)": n * n,
+    };
+  }), []);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -212,6 +231,46 @@ export default function Sort() {
               <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-success" /> Ordenado</span>
             </div>
           </div>
+          {/* Big O section after sorting */}
+          {isFinished && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6 space-y-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                Complejidad del ordenamiento
+              </h2>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { case: "Mejor caso", val: "O(n log n)" },
+                  { case: "Caso promedio", val: "O(n log n)" },
+                  { case: "Peor caso", val: "O(n log n)" },
+                ].map((c) => (
+                  <div key={c.case} className="rounded-xl bg-primary/10 p-4 text-center">
+                    <p className="text-xs text-muted-foreground mb-1">{c.case}</p>
+                    <p className="font-mono font-bold text-primary">{c.val}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Con <strong className="text-foreground">{currentData.array.length} elementos</strong>, Heap Sort realizó aproximadamente{" "}
+                <strong className="text-foreground">{Math.round(currentData.array.length * Math.log2(currentData.array.length))}</strong> operaciones.
+                Bubble Sort necesitaría ~<strong className="text-foreground">{currentData.array.length * currentData.array.length}</strong>.
+              </p>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={complexityData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="n" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "0.75rem", fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Line type="monotone" dataKey="Heap Sort O(n log n)" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 3 }} />
+                    <Line type="monotone" dataKey="Bubble Sort O(n²)" stroke="hsl(var(--destructive))" strokeWidth={2} dot={{ r: 3 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-xs text-muted-foreground text-center">Heap Sort es consistentemente más eficiente que algoritmos O(n²)</p>
+            </motion.div>
+          )}
         </motion.div>
       )}
     </div>
