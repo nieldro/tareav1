@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BookOpen, ArrowUpDown, BarChart3, Sparkles } from "lucide-react";
+import { BookOpen, ArrowUpDown, BarChart3, Sparkles, FileText, Presentation, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeapTree } from "@/components/HeapTree";
 
@@ -90,6 +90,62 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* Downloads */}
+      <section id="descargas" className="container mx-auto px-4 pb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="glass-card p-8"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Download className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl font-bold">Material descargable</h2>
+          </div>
+          <p className="text-muted-foreground mb-6">
+            Descarga la presentación y el documento del trabajo realizado por{" "}
+            <strong className="text-foreground">Daniel Alejandro Paez Torres</strong>.
+          </p>
+          <div className="grid md:grid-cols-2 gap-4">
+            <a
+              href="/downloads/Heap_Sort_Daniel_Paez.pptx"
+              download
+              className="flex items-center gap-4 p-5 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                <Presentation className="h-6 w-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold">Presentación (PPTX)</p>
+                <p className="text-sm text-muted-foreground truncate">Heap_Sort_Daniel_Paez.pptx</p>
+              </div>
+              <Download className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            </a>
+            <a
+              href="/downloads/Heap_Sort_APA_Daniel_Paez.docx"
+              download
+              className="flex items-center gap-4 p-5 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-accent/15 text-accent flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                <FileText className="h-6 w-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold">Documento APA (DOCX)</p>
+                <p className="text-sm text-muted-foreground truncate">Heap_Sort_APA_Daniel_Paez.docx</p>
+              </div>
+              <Download className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            </a>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Author footer */}
+      <footer className="container mx-auto px-4 pb-10">
+        <p className="text-center text-sm text-muted-foreground">
+          Hecho por <span className="font-semibold text-foreground">Daniel Alejandro Paez Torres</span>
+        </p>
+      </footer>
     </div>
   );
 }
